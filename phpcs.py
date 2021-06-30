@@ -57,8 +57,19 @@ class Pref:
         "scheck_additional_args"
     ]
 
+    templated_keys = {
+        "phpcs_php_prefix_path",
+        "phpcs_executable_path",
+        "php_cs_fixer_executable_path",
+        "phpcbf_executable_path",
+        "phpcs_php_path",
+        "phpmd_executable_path",
+        "scheck_executable_path",
+    }
+
     def load(self):
         self.settings = sublime.load_settings('phpcs.sublime-settings')
+        self.settings = self.apply_settings_template(self.settings)
 
         if sublime.active_window() is not None and sublime.active_window().active_view() is not None:
             project_settings = sublime.active_window().active_view().settings()
@@ -87,6 +98,21 @@ class Pref:
             self.project_settings[key] = value
         else:
             self.settings.set(key, value)
+
+    def apply_settings_template(self, settings: sublime.Settings) -> sublime.Settings:
+        # must only be defined after plugin_loaded()
+        template_variables = {
+            "st_cache_path": sublime.cache_path(),
+            "st_executable_path": sublime.executable_path(),
+            "st_installed_packages_path": sublime.installed_packages_path(),
+            "st_packages_path": sublime.packages_path(),
+            "user_home_path": os.path.expanduser("~"),
+        }
+
+        for key in self.templated_keys:
+            settings.set(key, sublime.expand_variables(settings.get(key), template_variables))
+
+        return settings
 
 
 pref = Pref()
