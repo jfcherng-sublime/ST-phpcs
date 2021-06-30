@@ -8,6 +8,10 @@ import sublime
 import sublime_plugin
 import sys
 
+# jfcherng
+from collections import OrderedDict
+import json
+
 try:
     from HTMLParser import HTMLParser
 except:
@@ -87,11 +91,21 @@ class Pref:
             setattr(self, key, self.get_setting(key))
             self.settings.add_on_change(key, pref.load)
 
-    def get_setting(self, key):
+    def get_source_setting(self, key):
         if key in self.project_settings:
             return self.project_settings.get(key)
         else:
             return self.settings.get(key)
+
+    def get_setting(self, key):
+        ret = self.get_source_setting(key)
+
+        if key == "php_cs_fixer_additional_args":
+            rules = ret.get("--rules", "")
+            if isinstance(rules, list):
+                ret["--rules"] = json.dumps(OrderedDict(rules), ensure_ascii=False)
+
+        return ret
 
     def set_setting(self, key, value):
         if key in self.project_settings:
