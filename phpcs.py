@@ -261,7 +261,7 @@ class Sniffer(ShellCommand):
         report = self.shell_out(args)
         debug_message(report)
         lines = re.finditer(
-            '.*line="(?P<line>\d+)" column="(?P<column>\d+)" severity="(?P<severity>\w+)" message="(?P<message>.*)" source',
+            r'.*line="(?P<line>\d+)" column="(?P<column>\d+)" severity="(?P<severity>\w+)" message="(?P<message>.*)" source',
             report,
         )
 
@@ -366,7 +366,7 @@ class CodeBeautifier(ShellCommand):
     def parse_report(self, args):
         report = self.shell_out(args)
         debug_message(report)
-        lines = re.finditer(".*\((?P<number>\d+) fixable violations\)", report)
+        lines = re.finditer(r".*\((?P<number>\d+) fixable violations\)", report)
 
         for line in lines:
             error = CheckstyleError(0, line.group("number") + " fixed violations")
@@ -409,7 +409,7 @@ class MessDetector(ShellCommand):
     def parse_report(self, args):
         report = self.shell_out(args)
         debug_message(report)
-        lines = re.finditer(".*:(?P<line>\d+)[ \t]+(?P<message>.*)", report)
+        lines = re.finditer(r".*:(?P<line>\d+)[ \t]+(?P<message>.*)", report)
 
         for line in lines:
             error = CheckstyleError(line.group("line"), line.group("message"))
@@ -450,7 +450,7 @@ class Scheck(ShellCommand):
     def parse_report(self, args):
         report = self.shell_out(args)
         debug_message(report)
-        lines = re.finditer(".*:(?P<line>\d+):(?P<column>\d+): CHECK: (?P<message>.*)", report)
+        lines = re.finditer(r".*:(?P<line>\d+):(?P<column>\d+): CHECK: (?P<message>.*)", report)
 
         for line in lines:
             error = CheckstyleError(line.group("line"), line.group("message"))
